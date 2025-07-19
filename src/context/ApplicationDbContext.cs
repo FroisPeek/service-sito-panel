@@ -4,28 +4,28 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using ServiceSitoPanel.Helpers;
+using ServiceSitoPanel.src.interfaces;
 using ServiceSitoPanel.src.model;
 
 namespace leapcert_back.src.context
 {
     public class ApplicationDbContext : DbContext
     {
-        private readonly JwtService _jwtService;
-        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options, JwtService jwtService) : base(options)
-        {
-            _jwtService = jwtService;
-        }
+        public int CurrentTenantId { get; set; }
+
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
 
         public DbSet<Users> users { get; set; }
         public DbSet<Tenant> tenant { get; set; }
         public DbSet<Profile> profiles { get; set; }
+        public DbSet<Orders> orders { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            var tenant = _jwtService.GetTenantFromToken();
 
-            // modelBuilder.Entity<Users>().HasQueryFilter(c => // ! tabela de user nao pode ter filter tenant
-            // c.tenant_id == int.Parse(tenant));
+            modelBuilder.Entity<Orders>(entity =>
+                entity.HasQueryFilter(o => o.tenant_id == CurrentTenantId)
+            );
         }
     }
 }

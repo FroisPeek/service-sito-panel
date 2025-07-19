@@ -7,6 +7,7 @@ using ServiceSitoPanel.src.interfaces;
 
 namespace ServiceSitoPanel.src.controllers
 {
+    [ApiController]
     [Route("api/general")]
     public class GeneralController : ControllerBase
     {

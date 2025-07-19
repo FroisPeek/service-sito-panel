@@ -106,11 +106,26 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
+builder.Services.AddScoped<ApplicationDbContext>(provider =>
+{
+    var options = provider.GetRequiredService<DbContextOptions<ApplicationDbContext>>();
+    var jwtService = provider.GetRequiredService<JwtService>();
+
+    var context = new ApplicationDbContext(options);
+
+    var tenantId = jwtService.GetTenantFromToken();
+    if (int.TryParse(tenantId, out var id))
+        context.CurrentTenantId = id;
+
+    return context;
+});
+
 builder.Services.AddAuthorization();
 builder.Services.AddHealthChecks();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IGeneralService, GeneralService>();
+builder.Services.AddScoped<IOrdersService, OrdersServices>();
 builder.Services.AddScoped<JwtService>();
 builder.Services.AddScoped<UserMapper>();
 
@@ -123,7 +138,7 @@ app.MapHealthChecks("/healthz");
 app.UseSwagger();
 app.UseSwaggerUI(c =>
 {
-    c.SwaggerEndpoint("/swagger/v1/swagger.json", "LeapCert v1");
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "API Sito Panel. v1");
     c.RoutePrefix = string.Empty;
 });
 
