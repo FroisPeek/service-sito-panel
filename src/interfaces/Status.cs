@@ -1,13 +1,22 @@
 using System.Runtime.Serialization;
 
-namespace ServiceSitoPanel.src.interfaces
+namespace ServiceSitoPanel.src.enums
 {
-    public class Status
+    public enum Status
     {
-        public string CompraPendente = "Compra Pendente";
-        public string ValorAReceber = "Valor a Receber";
-        public string ProntaEntrega = "Pronta Entrega";
-        public string EfetivarVenda = "Efetivar Venda";
-        public string CompraQuitada = "Compra Quitada";
+        [EnumMember(Value = "Compra Pendente")]
+        CompraPendente,
+
+        [EnumMember(Value = "Valor a Receber")]
+        ValorAReceber,
+
+        [EnumMember(Value = "Pronta Entrega")]
+        ProntaEntrega,
+
+        [EnumMember(Value = "Efetivar Venda")]
+        EfetivarVenda,
+
+        [EnumMember(Value = "Compra Quitada")]
+        CompraQuitada
     }
 }

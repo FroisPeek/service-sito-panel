@@ -114,8 +114,12 @@ builder.Services.AddScoped<ApplicationDbContext>(provider =>
     var context = new ApplicationDbContext(options);
 
     var tenantId = jwtService.GetTenantFromToken();
-    if (int.TryParse(tenantId, out var id))
-        context.CurrentTenantId = id;
+    if (int.TryParse(tenantId, out var tenant_id))
+        context.CurrentTenantId = tenant_id;
+
+    var id = jwtService.GetIdFromToken();
+    if (int.TryParse(id, out var user_id))
+        context.CurrentUserId = user_id;
 
     return context;
 });

@@ -100,6 +100,25 @@ public class JwtService
         }
     }
 
+    public string? GetIdFromToken()
+    {
+        var token = GetTokenFromCookie();
+        var tokenHandler = new JwtSecurityTokenHandler();
+        var validationParameters = GetValidationParameters();
+
+        try
+        {
+            var principal = tokenHandler.ValidateToken(token, validationParameters, out var validatedToken);
+            var id = principal.FindFirst("id");
+
+            return id?.Value;
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
     public string? GetTokenFromCookie()
     {
         return _httpContextAccessor.HttpContext.Request.Cookies["accessToken"];

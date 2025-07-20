@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using ServiceSitoPanel.Helpers;
+using ServiceSitoPanel.src.enums;
 using ServiceSitoPanel.src.interfaces;
 using ServiceSitoPanel.src.model;
 
@@ -12,6 +13,7 @@ namespace leapcert_back.src.context
     public class ApplicationDbContext : DbContext
     {
         public int CurrentTenantId { get; set; }
+        public int CurrentUserId { get; set; }
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
 
@@ -22,6 +24,7 @@ namespace leapcert_back.src.context
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.HasPostgresEnum<Status>();
 
             modelBuilder.Entity<Orders>(entity =>
                 entity.HasQueryFilter(o => o.tenant_id == CurrentTenantId)

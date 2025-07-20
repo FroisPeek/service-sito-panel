@@ -3,8 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using leapcert_back.src.context;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using ServiceSitoPanel.src.dtos.orders;
 using ServiceSitoPanel.src.interfaces;
+using ServiceSitoPanel.src.mappers;
 using ServiceSitoPanel.src.model;
 using static ServiceSitoPanel.src.responses.ResponseFactory;
 
@@ -27,6 +30,19 @@ namespace ServiceSitoPanel.src.services
                 return new ErrorResponse(false, 500, "Nenhum pedido encontrado.");
 
             return new SuccessResponse<ICollection<Orders>>(true, 200, "Pedidos retornados com sucesso", orders);
+        }
+
+        public async Task<IResponses> CreateOrder([FromBody] CreateOrderDto order)
+        {
+            if (order == null)
+                return new ErrorResponse(false, 500, "Preciso informar os campos do pedido");
+
+            var mappedOrder = order.ToCreateOrder(_context.CurrentTenantId);
+
+            await _context.orders.AddAsync(mappedOrder);
+            await _context.SaveChangesAsync();
+
+            return new SuccessResponse<Orders>(true, 201, "Pedido cadastrado com sucesso", mappedOrder);
         }
     }
 }
