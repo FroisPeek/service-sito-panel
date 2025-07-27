@@ -59,7 +59,7 @@ namespace ServiceSitoPanel.src.services
         public async Task<IResponses> Authenticate(LoginUserDto user, HttpContext context)
         {
             var existedUser = await _context.users
-                .FirstOrDefaultAsync(u => u.name == user.name);
+                .FirstOrDefaultAsync(u => u.name == user.username);
 
             if (existedUser is null)
                 return new ErrorResponse(false, 404, "Nenhum usuario encontrado");

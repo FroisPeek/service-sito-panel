@@ -44,6 +44,13 @@ namespace ServiceSitoPanel.src.controllers
             return Ok(result);
         }
 
+        [HttpPost("logout")]
+        public IActionResult Logout()
+        {
+            Response.Cookies.Delete("accessToken");
+            return Ok(new { message = "disconnect" });
+        }
+
         [Authorize]
         [HttpGet("getAllUsers")]
         public async Task<IActionResult> GetAllUsers()
