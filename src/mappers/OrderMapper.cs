@@ -16,6 +16,7 @@ namespace ServiceSitoPanel.src.mappers
             return new Orders
             {
                 client = order.client,
+                brand = order.brand,
                 code = order.code,
                 description = order.description,
                 size = order.size,

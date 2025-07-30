@@ -21,5 +21,6 @@ namespace ServiceSitoPanel.src.model
         public string status { get; set; }
         public DateTime date_order { get; set; }
         public int tenant_id { get; set; }
+        public string brand { get; set; }
     }
 }
