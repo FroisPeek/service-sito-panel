@@ -35,7 +35,7 @@ namespace ServiceSitoPanel.src.controllers
 
         [Authorize]
         [HttpPost]
-        public async Task<IActionResult> CreateOrder([FromBody] CreateOrderDto dto)
+        public async Task<IActionResult> CreateOrder([FromBody] CreateOrderDto[] dto)
         {
             var result = await _repo.CreateOrder(dto);
 

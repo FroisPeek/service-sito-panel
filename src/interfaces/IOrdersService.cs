@@ -11,6 +11,6 @@ namespace ServiceSitoPanel.src.interfaces
     public interface IOrdersService
     {
         Task<IResponses> GetAllOrders();
-        Task<IResponses> CreateOrder([FromBody] CreateOrderDto order);
+        Task<IResponses> CreateOrder([FromBody] CreateOrderDto[] order);
     }
 }

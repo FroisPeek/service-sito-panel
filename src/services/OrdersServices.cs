@@ -32,17 +32,23 @@ namespace ServiceSitoPanel.src.services
             return new SuccessResponse<ICollection<Orders>>(true, 200, "Pedidos retornados com sucesso", orders);
         }
 
-        public async Task<IResponses> CreateOrder([FromBody] CreateOrderDto order)
+        public async Task<IResponses> CreateOrder([FromBody] CreateOrderDto[] order)
         {
             if (order == null)
                 return new ErrorResponse(false, 500, "Preciso informar os campos do pedido");
 
-            var mappedOrder = order.ToCreateOrder(_context.CurrentTenantId);
 
-            await _context.orders.AddAsync(mappedOrder);
+            List<Orders> ordersArray = new List<Orders>();
+            foreach (var value in order)
+            {
+                var mappedOrder = value.ToCreateOrder(_context.CurrentTenantId);
+                ordersArray.Add(mappedOrder);
+                await _context.orders.AddAsync(mappedOrder);
+            }
+
             await _context.SaveChangesAsync();
 
-            return new SuccessResponse<Orders>(true, 201, "Pedido cadastrado com sucesso", mappedOrder);
+            return new SuccessResponse<List<Orders>>(true, 201, "Pedido cadastrado com sucesso", ordersArray);
         }
     }
 }

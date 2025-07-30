@@ -15,7 +15,6 @@ namespace ServiceSitoPanel.src.dtos.orders
         public int amount { get; set; }
         public Double cost_price { get; set; }
         public Double sale_price { get; set; }
-        public string status { get; set; }
         public DateTime date_order { get; set; }
     }
 }
