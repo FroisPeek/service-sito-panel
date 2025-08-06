@@ -8,7 +8,7 @@ using ServiceSitoPanel.src.enums;
 using ServiceSitoPanel.src.interfaces;
 using ServiceSitoPanel.src.model;
 
-namespace leapcert_back.src.context
+namespace ServiceSitoPanel.src.context
 {
     public class ApplicationDbContext : DbContext
     {

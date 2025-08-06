@@ -3,7 +3,7 @@ using Microsoft.OpenApi.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.EntityFrameworkCore;
-using leapcert_back.src.context;
+using ServiceSitoPanel.src.context;
 using ServiceSitoPanel.src.interfaces;
 using ServiceSitoPanel.src.services;
 using ServiceSitoPanel.Helpers;

@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using leapcert_back.src.context;
+using ServiceSitoPanel.src.context;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ServiceSitoPanel.src.dtos.orders;
@@ -10,6 +10,9 @@ using ServiceSitoPanel.src.interfaces;
 using ServiceSitoPanel.src.mappers;
 using ServiceSitoPanel.src.model;
 using static ServiceSitoPanel.src.responses.ResponseFactory;
+using Minio.DataModel.Result;
+using System.Security.Cryptography.X509Certificates;
+using Microsoft.AspNetCore.Razor.TagHelpers;
 
 namespace ServiceSitoPanel.src.services
 {
@@ -49,6 +52,24 @@ namespace ServiceSitoPanel.src.services
             await _context.SaveChangesAsync();
 
             return new SuccessResponse<List<Orders>>(true, 201, "Pedido cadastrado com sucesso", ordersArray);
+        }
+
+        public async Task<IResponses> UpdateOrderStatus([FromBody] int[] orders)
+        {
+            if (!orders.Any())
+                return new ErrorResponse(false, 500, "Código dos pedidos não registrados");
+
+            var ordersToUpdate = await _context.orders
+                .Where(o => orders.Contains(o.id))
+                .ToListAsync();
+
+            if (ordersToUpdate.Count != orders.Length)
+                return new ErrorResponse(false, 404, "Alguns pedidos informados não foram encontrados em nossa base");
+
+            foreach (var order in ordersToUpdate) order.status = "teste";
+
+            await _context.SaveChangesAsync();
+            return new SuccessResponse(true, 200, "Pedidos atualizados com sucesso");
         }
     }
 }
