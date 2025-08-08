@@ -13,6 +13,8 @@ using static ServiceSitoPanel.src.responses.ResponseFactory;
 using Minio.DataModel.Result;
 using System.Security.Cryptography.X509Certificates;
 using Microsoft.AspNetCore.Razor.TagHelpers;
+using ServiceSitoPanel.src.constants;
+using ServiceSitoPanel.src.functions;
 
 namespace ServiceSitoPanel.src.services
 {
@@ -54,7 +56,7 @@ namespace ServiceSitoPanel.src.services
             return new SuccessResponse<List<Orders>>(true, 201, "Pedido cadastrado com sucesso", ordersArray);
         }
 
-        public async Task<IResponses> UpdateOrderStatus([FromBody] int[] orders)
+        public async Task<IResponses> UpdateOrderStatus([FromBody] int[] orders, [FromQuery] int value)
         {
             if (!orders.Any())
                 return new ErrorResponse(false, 500, "Código dos pedidos não registrados");
@@ -66,7 +68,7 @@ namespace ServiceSitoPanel.src.services
             if (ordersToUpdate.Count != orders.Length)
                 return new ErrorResponse(false, 404, "Alguns pedidos informados não foram encontrados em nossa base");
 
-            foreach (var order in ordersToUpdate) order.status = "teste";
+            foreach (var order in ordersToUpdate) order.status = HandleFunctions.SelectStatus(value);
 
             await _context.SaveChangesAsync();
             return new SuccessResponse(true, 200, "Pedidos atualizados com sucesso");

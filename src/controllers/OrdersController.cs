@@ -43,5 +43,16 @@ namespace ServiceSitoPanel.src.controllers
 
             return Ok(result);
         }
+
+        [Authorize]
+        [HttpPut]
+        public async Task<IActionResult> UpdateStatusOrder([FromBody] int[] orders, [FromQuery] int value)
+        {
+            var result = await _repo.UpdateOrderStatus(orders, value);
+
+            if (!result.Flag) ResponseHelper.HandleError(this, result);
+
+            return Ok(result);
+        }
     }
 }
