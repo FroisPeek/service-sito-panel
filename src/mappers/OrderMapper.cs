@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using ServiceSitoPanel.src.dtos.orders;
 using ServiceSitoPanel.src.enums;
+using ServiceSitoPanel.src.functions;
 using ServiceSitoPanel.src.helpers;
 using ServiceSitoPanel.src.model;
 
@@ -25,8 +26,9 @@ namespace ServiceSitoPanel.src.mappers
                 sale_price = order.sale_price,
                 total_price = order.amount * order.sale_price,
                 status = StatusHelper.CompraPendente,
-                date_order = DateTime.UtcNow,
-                tenant_id = tenant_id
+                date_order = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, HandleFunctions.GetTimeZone()),
+                tenant_id = tenant_id,
+                purchase_order = null,
             };
         }
     }

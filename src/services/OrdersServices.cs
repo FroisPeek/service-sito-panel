@@ -29,7 +29,9 @@ namespace ServiceSitoPanel.src.services
 
         public async Task<IResponses> GetAllOrders()
         {
-            ICollection<Orders> orders = await _context.orders.ToListAsync();
+            ICollection<Orders> orders = await _context.orders
+                .OrderByDescending(o => o.id)
+                .ToListAsync();
 
             if (orders.Count == 0)
                 return new ErrorResponse(false, 500, "Nenhum pedido encontrado.");
@@ -68,7 +70,11 @@ namespace ServiceSitoPanel.src.services
             if (ordersToUpdate.Count != orders.Length)
                 return new ErrorResponse(false, 404, "Alguns pedidos informados não foram encontrados em nossa base");
 
-            foreach (var order in ordersToUpdate) order.status = HandleFunctions.SelectStatus(value);
+            foreach (var order in ordersToUpdate)
+            {
+                order.status = HandleFunctions.SelectStatus(value);
+                order.purchase_order = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, HandleFunctions.GetTimeZone());
+            }
 
             await _context.SaveChangesAsync();
             return new SuccessResponse(true, 200, "Pedidos atualizados com sucesso");

@@ -133,7 +133,6 @@ builder.Services.AddScoped<IOrdersService, OrdersServices>();
 builder.Services.AddScoped<JwtService>();
 builder.Services.AddScoped<UserMapper>();
 
-
 var app = builder.Build();
 
 app.MapHealthChecks("/healthz");

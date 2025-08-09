@@ -22,5 +22,6 @@ namespace ServiceSitoPanel.src.model
         public DateTime date_order { get; set; }
         public int tenant_id { get; set; }
         public string brand { get; set; }
+        public DateTime? purchase_order { get; set; }
     }
 }

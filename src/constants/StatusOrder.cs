@@ -19,7 +19,7 @@ namespace ServiceSitoPanel.src.constants
             {Status.PendingPurchase, "Compra Pendente" },
             {Status.SaleToRecive, "Venda a Receber" },
             {Status.ReadyForDelivery, "Pronta a Entrega" },
-            {Status.ConfirmSale, "Efetivar Venda" },
+            {Status.ConfirmSale, "Compra Realizada" },
             {Status.PaidPurchase, "Compra Quitada"},
         };
     }
