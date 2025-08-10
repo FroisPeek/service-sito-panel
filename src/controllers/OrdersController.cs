@@ -34,6 +34,17 @@ namespace ServiceSitoPanel.src.controllers
         }
 
         [Authorize]
+        [HttpGet("{status}")]
+        public async Task<IActionResult> GetOrderByStatus(int status)
+        {
+            var result = await _repo.GetOrdersByStatus(status);
+
+            if (!result.Flag) ResponseHelper.HandleError(this, result);
+
+            return Ok(result);
+        }
+
+        [Authorize]
         [HttpPost]
         public async Task<IActionResult> CreateOrder([FromBody] CreateOrderDto[] dto)
         {

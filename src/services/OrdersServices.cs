@@ -34,15 +34,27 @@ namespace ServiceSitoPanel.src.services
                 .ToListAsync();
 
             if (orders.Count == 0)
-                return new ErrorResponse(false, 500, "Nenhum pedido encontrado.");
+                return new ErrorResponse(false, 500, ErrorMessages.NoOrdersFound);
 
-            return new SuccessResponse<ICollection<Orders>>(true, 200, "Pedidos retornados com sucesso", orders);
+            return new SuccessResponse<ICollection<Orders>>(true, 200, SuccessMessages.OrdersRetrieved, orders);
+        }
+
+        public async Task<IResponses> GetOrdersByStatus(int status)
+        {
+            ICollection<Orders> orders = await _context.orders
+                .Where(o => o.status == HandleFunctions.SelectStatus(status))
+                .ToListAsync();
+
+            if (orders.Count == 0)
+                return new ErrorResponse(false, 500, ErrorMessages.NoOrdersFound);
+
+            return new SuccessResponse<ICollection<Orders>>(true, 200, SuccessMessages.OrdersRetrieved, orders);
         }
 
         public async Task<IResponses> CreateOrder([FromBody] CreateOrderDto[] order)
         {
             if (order == null)
-                return new ErrorResponse(false, 500, "Preciso informar os campos do pedido");
+                return new ErrorResponse(false, 500, ErrorMessages.MissingOrderFields);
 
 
             List<Orders> ordersArray = new List<Orders>();
@@ -55,20 +67,20 @@ namespace ServiceSitoPanel.src.services
 
             await _context.SaveChangesAsync();
 
-            return new SuccessResponse<List<Orders>>(true, 201, "Pedido cadastrado com sucesso", ordersArray);
+            return new SuccessResponse<List<Orders>>(true, 201, SuccessMessages.OrderCreated, ordersArray);
         }
 
         public async Task<IResponses> UpdateOrderStatus([FromBody] int[] orders, [FromQuery] int value)
         {
             if (!orders.Any())
-                return new ErrorResponse(false, 500, "Código dos pedidos não registrados");
+                return new ErrorResponse(false, 500, ErrorMessages.MissingOrderCodes);
 
             var ordersToUpdate = await _context.orders
                 .Where(o => orders.Contains(o.id))
                 .ToListAsync();
 
             if (ordersToUpdate.Count != orders.Length)
-                return new ErrorResponse(false, 404, "Alguns pedidos informados não foram encontrados em nossa base");
+                return new ErrorResponse(false, 404, ErrorMessages.SomeOrdersNotFound);
 
             foreach (var order in ordersToUpdate)
             {
@@ -77,7 +89,7 @@ namespace ServiceSitoPanel.src.services
             }
 
             await _context.SaveChangesAsync();
-            return new SuccessResponse(true, 200, "Pedidos atualizados com sucesso");
+            return new SuccessResponse(true, 200, SuccessMessages.OrdersUpdated);
         }
     }
 }
