@@ -19,9 +19,10 @@ namespace ServiceSitoPanel.src.model
         public Double sale_price { get; set; }
         public Double total_price { get; set; }
         public string status { get; set; }
-        public DateTime date_order { get; set; }
+        public DateTime date_creation_order { get; set; }
         public int tenant_id { get; set; }
         public string brand { get; set; }
-        public DateTime? purchase_order { get; set; }
+        public DateTime? date_order { get; set; }
+        public DateTime? date_purchase_order { get; set; }
     }
 }

@@ -28,8 +28,9 @@ namespace ServiceSitoPanel.src.context
 
             modelBuilder.Entity<Orders>(entity =>
             {
-                entity.Property(e => e.purchase_order)
-                    .HasColumnType("timestamp without time zone");
+                entity.Property(e => e.date_order).HasColumnType("timestamp without time zone");
+                entity.Property(e => e.date_creation_order).HasColumnType("timestamp without time zone");
+                entity.Property(e => e.date_purchase_order).HasColumnType("timestamp without time zone");
             });
 
             modelBuilder.Entity<Orders>(entity =>

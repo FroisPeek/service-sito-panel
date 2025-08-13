@@ -83,10 +83,7 @@ namespace ServiceSitoPanel.src.services
                 return new ErrorResponse(false, 404, ErrorMessages.SomeOrdersNotFound);
 
             foreach (var order in ordersToUpdate)
-            {
-                order.status = HandleFunctions.SelectStatus(value);
-                order.purchase_order = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, HandleFunctions.GetTimeZone());
-            }
+                order.UpdateOrderStatusByValue(value);
 
             await _context.SaveChangesAsync();
             return new SuccessResponse(true, 200, SuccessMessages.OrdersUpdated);
