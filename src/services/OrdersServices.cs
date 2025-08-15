@@ -15,6 +15,7 @@ using System.Security.Cryptography.X509Certificates;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 using ServiceSitoPanel.src.constants;
 using ServiceSitoPanel.src.functions;
+using System.Reflection.Metadata;
 
 namespace ServiceSitoPanel.src.services
 {
@@ -41,8 +42,10 @@ namespace ServiceSitoPanel.src.services
 
         public async Task<IResponses> GetOrdersByStatus(int status)
         {
+            var statues = HandleFunctions.SelectOneOrMoreStatus(status);
+
             ICollection<Orders> orders = await _context.orders
-                .Where(o => o.status == HandleFunctions.SelectStatus(status))
+                .Where(o => statues.Contains(o.status))
                 .ToListAsync();
 
             if (orders.Count == 0)
