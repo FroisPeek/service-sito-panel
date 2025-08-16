@@ -21,6 +21,7 @@ namespace ServiceSitoPanel.src.context
         public DbSet<Tenant> tenant { get; set; }
         public DbSet<Profile> profiles { get; set; }
         public DbSet<Orders> orders { get; set; }
+        public DbSet<Client> client { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -32,6 +33,11 @@ namespace ServiceSitoPanel.src.context
                 entity.Property(e => e.date_creation_order).HasColumnType("timestamp without time zone");
                 entity.Property(e => e.date_purchase_order).HasColumnType("timestamp without time zone");
             });
+
+            modelBuilder.Entity<Orders>()
+                .HasOne(o => o.ClientJoin)
+                .WithMany()
+                .HasForeignKey(o => o.client);
 
             modelBuilder.Entity<Orders>(entity =>
                 entity.HasQueryFilter(o => o.tenant_id == CurrentTenantId)

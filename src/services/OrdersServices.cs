@@ -31,13 +31,16 @@ namespace ServiceSitoPanel.src.services
         public async Task<IResponses> GetAllOrders()
         {
             ICollection<Orders> orders = await _context.orders
+                .Include(orders => orders.ClientJoin)
                 .OrderByDescending(o => o.id)
                 .ToListAsync();
 
             if (orders.Count == 0)
                 return new ErrorResponse(false, 500, ErrorMessages.NoOrdersFound);
 
-            return new SuccessResponse<ICollection<Orders>>(true, 200, SuccessMessages.OrdersRetrieved, orders);
+            var mappedOrders = orders.Select(o => o.ToReadAllOrders());
+
+            return new SuccessResponse<IEnumerable<ReadOrdersDto>>(true, 200, SuccessMessages.OrdersRetrieved, mappedOrders);
         }
 
         public async Task<IResponses> GetOrdersByStatus(int status)
@@ -45,13 +48,17 @@ namespace ServiceSitoPanel.src.services
             var statues = HandleFunctions.SelectOneOrMoreStatus(status);
 
             ICollection<Orders> orders = await _context.orders
+                .Include(orders => orders.ClientJoin)
                 .Where(o => statues.Contains(o.status))
+                .OrderBy(o => o.status)
                 .ToListAsync();
 
             if (orders.Count == 0)
                 return new ErrorResponse(false, 500, ErrorMessages.NoOrdersFound);
 
-            return new SuccessResponse<ICollection<Orders>>(true, 200, SuccessMessages.OrdersRetrieved, orders);
+            var mappedOrders = orders.Select(o => o.ToReadAllOrders());
+
+            return new SuccessResponse<IEnumerable<ReadOrdersDto>>(true, 200, SuccessMessages.OrdersRetrieved, mappedOrders);
         }
 
         public async Task<IResponses> CreateOrder([FromBody] CreateOrderDto[] order)
@@ -63,7 +70,11 @@ namespace ServiceSitoPanel.src.services
             List<Orders> ordersArray = new List<Orders>();
             foreach (var value in order)
             {
-                var mappedOrder = value.ToCreateOrder(_context.CurrentTenantId);
+                var mappedClient = value.ToCreateClient(_context.CurrentTenantId);
+                await _context.client.AddAsync(mappedClient);
+                await _context.SaveChangesAsync();
+
+                var mappedOrder = value.ToCreateOrder(_context.CurrentTenantId, mappedClient.id);
                 ordersArray.Add(mappedOrder);
                 await _context.orders.AddAsync(mappedOrder);
             }

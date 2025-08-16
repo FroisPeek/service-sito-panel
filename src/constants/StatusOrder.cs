@@ -9,7 +9,9 @@ namespace ServiceSitoPanel.src.constants
         SaleToRecive,
         ReadyForDelivery,
         ConfirmSale,
-        PaidPurchase
+        PaidPurchase,
+        ToCheck,
+        Checked
     }
 
     public static class StatusOrder
@@ -21,6 +23,8 @@ namespace ServiceSitoPanel.src.constants
             {Status.ReadyForDelivery, "Pronta a Entrega" },
             {Status.ConfirmSale, "Compra Realizada" },
             {Status.PaidPurchase, "Compra Quitada"},
+            {Status.ToCheck, "A Conferir"},
+            {Status.Checked, "Conferido"}
         };
     }
 }

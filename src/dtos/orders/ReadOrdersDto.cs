@@ -1,18 +1,14 @@
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
-using ServiceSitoPanel.src.enums;
-using ServiceSitoPanel.src.interfaces;
+using ServiceSitoPanel.src.model;
 
-namespace ServiceSitoPanel.src.model
+namespace ServiceSitoPanel.src.dtos.orders
 {
-    public class Orders
+    public class ReadOrdersDto
     {
-        [Key]
         public int id { get; set; }
-        public int client { get; set; }
         public int code { get; set; }
         public string? description { get; set; }
         public string size { get; set; }
@@ -26,9 +22,13 @@ namespace ServiceSitoPanel.src.model
         public string brand { get; set; }
         public DateTime? date_order { get; set; }
         public DateTime? date_purchase_order { get; set; }
+        public ClientDto client_infos { get; set; }
         public string? status_conference { get; set; }
-
-        // joins 
-        public Client ClientJoin { get; set; }
     }
+
+    public class ClientDto
+    {
+        public int client_id { get; set; }
+        public string client_name { get; set; }
+    };
 }

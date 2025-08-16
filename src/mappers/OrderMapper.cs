@@ -4,20 +4,45 @@ using System.Linq;
 using System.Threading.Tasks;
 using ServiceSitoPanel.src.constants;
 using ServiceSitoPanel.src.dtos.orders;
-using ServiceSitoPanel.src.enums;
 using ServiceSitoPanel.src.functions;
-using ServiceSitoPanel.src.helpers;
 using ServiceSitoPanel.src.model;
 
 namespace ServiceSitoPanel.src.mappers
 {
     public static class OrderMapper
     {
-        public static Orders ToCreateOrder(this CreateOrderDto order, int tenant_id)
+        public static ReadOrdersDto ToReadAllOrders(this Orders orders)
+        {
+            return new ReadOrdersDto
+            {
+                id = orders.id,
+                code = orders.code,
+                description = orders.description,
+                size = orders.size,
+                amount = orders.amount,
+                cost_price = orders.cost_price,
+                sale_price = orders.sale_price,
+                total_price = orders.total_price,
+                status = orders.status,
+                date_creation_order = orders.date_creation_order,
+                tenant_id = orders.tenant_id,
+                brand = orders.brand,
+                date_order = orders.date_order,
+                date_purchase_order = orders.date_purchase_order,
+                status_conference = orders.status_conference,
+                client_infos = new ClientDto
+                {
+                    client_id = orders.ClientJoin.id,
+                    client_name = orders.ClientJoin.name
+                }
+            };
+        }
+
+        public static Orders ToCreateOrder(this CreateOrderDto order, int tenant_id, int client_id)
         {
             return new Orders
             {
-                client = order.client,
+                client = client_id,
                 brand = order.brand,
                 code = order.code,
                 description = order.description,
@@ -35,7 +60,7 @@ namespace ServiceSitoPanel.src.mappers
 
         public static void UpdateOrderStatusByValue(this Orders order, int value)
         {
-            order.status = HandleFunctions.SelectStatus(value);
+            order.status = value > 5 ? order.status : HandleFunctions.SelectStatus(value);
             var now = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, HandleFunctions.GetTimeZone());
 
             switch (value)
@@ -55,6 +80,11 @@ namespace ServiceSitoPanel.src.mappers
 
                 case 5:
                     order.date_purchase_order = now;
+                    order.status_conference = StatusOrder.NewStatus[Status.ToCheck];
+                    break;
+
+                case 8:
+                    order.status_conference = StatusOrder.NewStatus[Status.Checked];
                     break;
 
                 default:
