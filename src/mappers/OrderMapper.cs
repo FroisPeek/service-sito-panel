@@ -30,6 +30,7 @@ namespace ServiceSitoPanel.src.mappers
                 date_order = orders.date_order,
                 date_purchase_order = orders.date_purchase_order,
                 status_conference = orders.status_conference,
+                date_conference = orders.date_conference,
                 client_infos = new ClientDto
                 {
                     client_id = orders.ClientJoin.id,
@@ -85,6 +86,7 @@ namespace ServiceSitoPanel.src.mappers
 
                 case 8:
                     order.status_conference = StatusOrder.NewStatus[Status.Checked];
+                    order.date_conference = now;
                     break;
 
                 default:

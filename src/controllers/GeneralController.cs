@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ServiceSitoPanel.src.interfaces;
 
@@ -21,6 +22,17 @@ namespace ServiceSitoPanel.src.controllers
         public async Task<IActionResult> GetProfiles()
         {
             var result = await _general.GetAllProfiles();
+
+            if (!result.Flag) ResponseHelper.HandleError(this, result);
+
+            return Ok(result);
+        }
+
+        [Authorize]
+        [HttpGet("clients")]
+        public async Task<IActionResult> GetAllClients()
+        {
+            var result = await _general.GetAllClients();
 
             if (!result.Flag) ResponseHelper.HandleError(this, result);
 

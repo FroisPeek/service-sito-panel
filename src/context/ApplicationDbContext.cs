@@ -27,21 +27,15 @@ namespace ServiceSitoPanel.src.context
         {
             modelBuilder.HasPostgresEnum<Status>();
 
-            modelBuilder.Entity<Orders>(entity =>
-            {
-                entity.Property(e => e.date_order).HasColumnType("timestamp without time zone");
-                entity.Property(e => e.date_creation_order).HasColumnType("timestamp without time zone");
-                entity.Property(e => e.date_purchase_order).HasColumnType("timestamp without time zone");
-            });
-
-            modelBuilder.Entity<Orders>()
-                .HasOne(o => o.ClientJoin)
-                .WithMany()
-                .HasForeignKey(o => o.client);
+            modelBuilder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
 
             modelBuilder.Entity<Orders>(entity =>
                 entity.HasQueryFilter(o => o.tenant_id == CurrentTenantId)
             );
+            modelBuilder.Entity<Client>(entity =>
+                entity.HasQueryFilter(o => o.tenant_id == CurrentTenantId)
+            );
+
         }
     }
 }

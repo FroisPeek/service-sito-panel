@@ -8,5 +8,6 @@ namespace ServiceSitoPanel.src.interfaces
     public interface IGeneralService
     {
         Task<IResponses> GetAllProfiles();
+        Task<IResponses> GetAllClients();
     }
 }
