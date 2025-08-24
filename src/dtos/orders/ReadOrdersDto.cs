@@ -22,7 +22,7 @@ namespace ServiceSitoPanel.src.dtos.orders
         public string brand { get; set; }
         public DateTime? date_order { get; set; }
         public DateTime? date_purchase_order { get; set; }
-        public ClientDto client_infos { get; set; }
+        public ClientDto? client_infos { get; set; }
         public string? status_conference { get; set; }
         public DateTime? date_conference { get; set; }
     }

@@ -21,7 +21,7 @@ namespace ServiceSitoPanel.src.mappers
                 size = orders.size,
                 amount = orders.amount,
                 cost_price = orders.cost_price,
-                sale_price = orders.sale_price,
+                sale_price = orders.sale_price ?? 0,
                 total_price = orders.total_price,
                 status = orders.status,
                 date_creation_order = orders.date_creation_order,
@@ -31,11 +31,13 @@ namespace ServiceSitoPanel.src.mappers
                 date_purchase_order = orders.date_purchase_order,
                 status_conference = orders.status_conference,
                 date_conference = orders.date_conference,
-                client_infos = new ClientDto
+                client_infos = orders.ClientJoin != null
+                ? new ClientDto
                 {
                     client_id = orders.ClientJoin.id,
                     client_name = orders.ClientJoin.name
                 }
+                : null
             };
         }
 
@@ -73,6 +75,8 @@ namespace ServiceSitoPanel.src.mappers
                     break;
 
                 case 3:
+                    order.client = null;
+                    order.sale_price = null;
                     break;
 
                 case 4:

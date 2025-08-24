@@ -38,7 +38,9 @@ namespace ServiceSitoPanel.src.services
             if (orders.Count == 0)
                 return new ErrorResponse(false, 500, ErrorMessages.NoOrdersFound);
 
-            var mappedOrders = orders.Select(o => o.ToReadAllOrders());
+            var mappedOrders = orders
+                .Where(o => o.ClientJoin != null)
+                .Select(o => o.ToReadAllOrders());
 
             return new SuccessResponse<IEnumerable<ReadOrdersDto>>(true, 200, SuccessMessages.OrdersRetrieved, mappedOrders);
         }
