@@ -9,7 +9,7 @@ namespace ServiceSitoPanel.src.dtos.orders
     {
         public string client { get; set; }
         public string brand { get; set; }
-        public int code { get; set; }
+        public string code { get; set; }
         public string? description { get; set; }
         public string size { get; set; }
         public int amount { get; set; }

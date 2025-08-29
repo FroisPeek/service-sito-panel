@@ -22,7 +22,7 @@ namespace ServiceSitoPanel.src.mappers
                 amount = orders.amount,
                 cost_price = orders.cost_price,
                 sale_price = orders.sale_price ?? 0,
-                total_price = orders.total_price,
+                total_price = orders.total_price ?? 0,
                 status = orders.status,
                 date_creation_order = orders.date_creation_order,
                 tenant_id = orders.tenant_id,
@@ -77,6 +77,7 @@ namespace ServiceSitoPanel.src.mappers
                 case 3:
                     order.client = null;
                     order.sale_price = null;
+                    order.total_price = null;
                     break;
 
                 case 4:
@@ -97,5 +98,15 @@ namespace ServiceSitoPanel.src.mappers
                     throw new ArgumentException(ErrorMessages.InternalServerError, nameof(value));
             }
         }
+
+        public static void MapToOrder(this NewClientInOrderDto dto, Orders order, int tenant_id, int client_id)
+        {
+            order.client = client_id;
+            order.status = StatusOrder.NewStatus[Status.PaidPurchase];
+            order.tenant_id = tenant_id;
+            order.sale_price = dto.sale_price;
+            order.total_price = dto.total_price;
+        }
+
     }
 }

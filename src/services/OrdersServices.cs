@@ -104,5 +104,29 @@ namespace ServiceSitoPanel.src.services
             await _context.SaveChangesAsync();
             return new SuccessResponse(true, 200, SuccessMessages.OrdersUpdated);
         }
+
+        public async Task<IResponses> NewClientInOrder([FromBody] NewClientInOrderDto dto)
+        {
+            if (dto == null)
+                return new ErrorResponse(false, 500, ErrorMessages.MissingOrderCodes);
+
+            var orderToUpdate = await _context.orders
+                .FirstOrDefaultAsync(o => o.id == dto.order_id);
+
+            if (orderToUpdate == null)
+                return new ErrorResponse(false, 404, ErrorMessages.NoOrdersFound);
+
+            var mappedClient = new Client { name = dto.client, tenant_id = _context.CurrentTenantId };
+
+            await _context.client.AddAsync(mappedClient);
+            await _context.SaveChangesAsync();
+
+            dto.MapToOrder(orderToUpdate, _context.CurrentTenantId, mappedClient.id);
+            _context.orders.Update(orderToUpdate);
+
+            await _context.SaveChangesAsync();
+
+            return new SuccessResponse<Orders>(true, 200, SuccessMessages.OrderCreated, orderToUpdate);
+        }
     }
 }

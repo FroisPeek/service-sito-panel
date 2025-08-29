@@ -65,5 +65,16 @@ namespace ServiceSitoPanel.src.controllers
 
             return Ok(result);
         }
+
+        [Authorize]
+        [HttpPatch("new-client-order")]
+        public async Task<IActionResult> NewClientInOrder([FromBody] NewClientInOrderDto dto)
+        {
+            var result = await _repo.NewClientInOrder(dto);
+
+            if (!result.Flag) ResponseHelper.HandleError(this, result);
+
+            return Ok(result);
+        }
     }
 }
