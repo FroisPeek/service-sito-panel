@@ -128,5 +128,40 @@ namespace ServiceSitoPanel.src.services
 
             return new SuccessResponse<Orders>(true, 200, SuccessMessages.OrderCreated, orderToUpdate);
         }
+
+        public async Task<IResponses> GetAllPendingPaidOrders()
+        {
+            var orders = await _context.orders
+                .Include(o => o.ClientJoin)
+                .Where(o => o.price_paid != o.total_price)
+                .ToListAsync();
+
+            if (orders.Count == 0)
+                return new ErrorResponse(false, 404, ErrorMessages.NoOrdersFound);
+
+            return new SuccessResponse<IEnumerable<ReadOrdersDto>>(true, 200, SuccessMessages.OrderCreated, orders.Select(o => o.ToReadAllOrders()));
+        }
+
+        public async Task<IResponses> UpdatePricePaid([FromBody] UpdatePaidPriceDto[] dto)
+        {
+            var orderIds = dto.Select(d => d.order_id).ToList();
+
+            var ordersToUpdate = await _context.orders
+                .Where(o => orderIds.Contains(o.id))
+                .ToListAsync();
+
+            if (ordersToUpdate == null)
+                return new ErrorResponse(false, 404, ErrorMessages.NoOrdersFound);
+
+            foreach (var order in ordersToUpdate)
+            {
+                var dtoItem = dto.First(d => d.order_id == order.id);
+                order.price_paid = dtoItem.paid_price;
+            }
+
+            await _context.SaveChangesAsync();
+
+            return new SuccessResponse<List<Orders>>(true, 200, SuccessMessages.OrderCreated, ordersToUpdate);
+        }
     }
 }

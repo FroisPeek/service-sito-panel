@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -71,6 +72,28 @@ namespace ServiceSitoPanel.src.controllers
         public async Task<IActionResult> NewClientInOrder([FromBody] NewClientInOrderDto dto)
         {
             var result = await _repo.NewClientInOrder(dto);
+
+            if (!result.Flag) ResponseHelper.HandleError(this, result);
+
+            return Ok(result);
+        }
+
+        [Authorize]
+        [HttpGet("pending")]
+        public async Task<IActionResult> PendingPaidOrders()
+        {
+            var result = await _repo.GetAllPendingPaidOrders();
+
+            if (!result.Flag) ResponseHelper.HandleError(this, result);
+
+            return Ok(result);
+        }
+
+        [Authorize]
+        [HttpPost("update-paid-price")]
+        public async Task<IActionResult> UpdatePaidPrice([FromBody] UpdatePaidPriceDto[] dto)
+        {
+            var result = await _repo.UpdatePricePaid(dto);
 
             if (!result.Flag) ResponseHelper.HandleError(this, result);
 

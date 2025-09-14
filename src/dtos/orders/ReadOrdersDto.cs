@@ -25,6 +25,7 @@ namespace ServiceSitoPanel.src.dtos.orders
         public ClientDto? client_infos { get; set; }
         public string? status_conference { get; set; }
         public DateTime? date_conference { get; set; }
+        public Double paid_price { get; set; }
     }
 
     public class ClientDto

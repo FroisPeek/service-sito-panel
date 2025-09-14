@@ -23,6 +23,7 @@ namespace ServiceSitoPanel.src.mappers
                 cost_price = orders.cost_price,
                 sale_price = orders.sale_price ?? 0,
                 total_price = orders.total_price ?? 0,
+                paid_price = orders.price_paid ?? 0,
                 status = orders.status,
                 date_creation_order = orders.date_creation_order,
                 tenant_id = orders.tenant_id,

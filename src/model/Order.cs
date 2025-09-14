@@ -28,6 +28,7 @@ namespace ServiceSitoPanel.src.model
         public DateTime? date_purchase_order { get; set; }
         public string? status_conference { get; set; }
         public DateTime? date_conference { get; set; }
+        public Double? price_paid { get; set; }
 
         // joins 
         public Client ClientJoin { get; set; }
