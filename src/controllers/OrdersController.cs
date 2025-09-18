@@ -90,7 +90,7 @@ namespace ServiceSitoPanel.src.controllers
         }
 
         [Authorize]
-        [HttpPost("update-paid-price")]
+        [HttpPatch("update-paid-price")]
         public async Task<IActionResult> UpdatePaidPrice([FromBody] UpdatePaidPriceDto[] dto)
         {
             var result = await _repo.UpdatePricePaid(dto);
