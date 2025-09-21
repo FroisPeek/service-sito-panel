@@ -8,6 +8,7 @@ using ServiceSitoPanel.src.interfaces;
 using ServiceSitoPanel.src.services;
 using ServiceSitoPanel.Helpers;
 using ServiceSitoPanel.src.mappers.users;
+using serviceSidafWeb.Functions;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -131,6 +132,7 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IGeneralService, GeneralService>();
 builder.Services.AddScoped<IOrdersService, OrdersServices>();
 builder.Services.AddScoped<JwtService>();
+builder.Services.AddScoped<HelperService>();
 builder.Services.AddScoped<UserMapper>();
 
 var app = builder.Build();

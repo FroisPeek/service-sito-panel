@@ -9,6 +9,7 @@ using ServiceSitoPanel.src.interfaces;
 using ServiceSitoPanel.src.mappers.users;
 using ServiceSitoPanel.src.model;
 using static ServiceSitoPanel.src.responses.ResponseFactory;
+using serviceSidafWeb.Functions;
 
 namespace ServiceSitoPanel.src.services
 {
@@ -19,7 +20,7 @@ namespace ServiceSitoPanel.src.services
         private readonly JwtService _jwtService;
         private readonly IConfiguration _configuration;
 
-        public UserService(ApplicationDbContext context, UserMapper mapperUser, JwtService jwtService, IConfiguration configuration)
+        public UserService(ApplicationDbContext context, UserMapper mapperUser, JwtService jwtService, IConfiguration configuration, HelperService helper)
         {
             _context = context;
             _mapperUser = mapperUser;
@@ -64,7 +65,7 @@ namespace ServiceSitoPanel.src.services
             if (existedUser is null)
                 return new ErrorResponse(false, 404, "Nenhum usuario encontrado");
 
-            if (existedUser.password != user.password)
+            if (existedUser.password != HelperService.HashMd5(user.password))
                 return new ErrorResponse(false, 400, "Senha incorreta");
 
             CreateUserSessionDTO userSession = new CreateUserSessionDTO(
