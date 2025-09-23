@@ -22,6 +22,7 @@ namespace ServiceSitoPanel.src.context
         public DbSet<Profile> profiles { get; set; }
         public DbSet<Orders> orders { get; set; }
         public DbSet<Client> client { get; set; }
+        public DbSet<Expenses> expenses { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -33,6 +34,9 @@ namespace ServiceSitoPanel.src.context
                 entity.HasQueryFilter(o => o.tenant_id == CurrentTenantId)
             );
             modelBuilder.Entity<Client>(entity =>
+                entity.HasQueryFilter(o => o.tenant_id == CurrentTenantId)
+            );
+            modelBuilder.Entity<Expenses>(entity =>
                 entity.HasQueryFilter(o => o.tenant_id == CurrentTenantId)
             );
 
