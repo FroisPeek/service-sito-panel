@@ -156,7 +156,7 @@ namespace ServiceSitoPanel.src.services
             foreach (var order in ordersToUpdate)
             {
                 var dtoItem = dto.First(d => d.order_id == order.id);
-                order.price_paid = order.price_paid + dtoItem.paid_price;
+                order.price_paid = (order.price_paid ?? 0) + dtoItem.paid_price;
             }
 
             await _context.SaveChangesAsync();

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ServiceSitoPanel.src.constants;
 using ServiceSitoPanel.src.context;
@@ -25,9 +26,20 @@ namespace ServiceSitoPanel.src.services
             var allExpenses = await _context.expenses.ToListAsync();
 
             if (allExpenses.Count == 0)
-                return new ErrorResponse(false, 404, ErrorMessages.NoProfilesFound);
+                return new ErrorResponse(false, 404, "Nenhuma despesa encontrada");
 
             return new SuccessResponse<IEnumerable<Expenses>>(true, 200, SuccessMessages.ProfilesRetrieved, allExpenses);
+        }
+
+        public async Task<IResponses> CreateExpenses([FromBody] Expenses dto)
+        {
+            if (dto == null)
+                return new ErrorResponse(false, 404, ErrorMessages.MissingOrderFields);
+
+            await _context.expenses.AddAsync(dto);
+            await _context.SaveChangesAsync();
+
+            return new SuccessResponse<Expenses>(true, 201, "Despesas criadas com sucesso", dto);
         }
     }
 }
