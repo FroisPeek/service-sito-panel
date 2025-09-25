@@ -6,7 +6,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ServiceSitoPanel.src.constants;
 using ServiceSitoPanel.src.context;
+using ServiceSitoPanel.src.dtos.expenses;
 using ServiceSitoPanel.src.interfaces;
+using ServiceSitoPanel.src.mappers;
 using ServiceSitoPanel.src.model;
 using static ServiceSitoPanel.src.responses.ResponseFactory;
 
@@ -31,15 +33,39 @@ namespace ServiceSitoPanel.src.services
             return new SuccessResponse<IEnumerable<Expenses>>(true, 200, SuccessMessages.ProfilesRetrieved, allExpenses);
         }
 
-        public async Task<IResponses> CreateExpenses([FromBody] Expenses dto)
+        public async Task<IResponses> CreateExpenses([FromBody] CreateExpensesDto dto)
         {
             if (dto == null)
                 return new ErrorResponse(false, 404, ErrorMessages.MissingOrderFields);
 
-            await _context.expenses.AddAsync(dto);
+            var mappedExpenses = dto.ToCreateExpense(_context.CurrentTenantId);
+
+            await _context.expenses.AddAsync(mappedExpenses);
             await _context.SaveChangesAsync();
 
-            return new SuccessResponse<Expenses>(true, 201, "Despesas criadas com sucesso", dto);
+            return new SuccessResponse<Expenses>(true, 201, "Despesas criadas com sucesso", mappedExpenses);
+        }
+
+        public async Task<IResponses> UpdateExpenses([FromBody] UpdateExpenseDto dto)
+        {
+            if (dto == null)
+                return new ErrorResponse(false, 404, ErrorMessages.MissingOrderFields);
+
+            var expenseToUpdate = await _context.expenses.FirstOrDefaultAsync(e => e.id == dto.id);
+
+            if (expenseToUpdate == null)
+                return new ErrorResponse(false, 404, "Despesa não encotrada");
+
+            expenseToUpdate.description = dto.description;
+            expenseToUpdate.expense_date = dto.expense_date;
+            expenseToUpdate.payment_date = dto.payment_date;
+            expenseToUpdate.performed_at = dto.performed_at;
+            expenseToUpdate.price = dto.price;
+            expenseToUpdate.processed_at = dto.processed_at;
+
+            await _context.SaveChangesAsync();
+
+            return new SuccessResponse<Expenses>(true, 201, "Despesa atualizada com sucesso", expenseToUpdate);
         }
     }
 }

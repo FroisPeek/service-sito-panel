@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using ServiceSitoPanel.src.dtos.expenses;
 using ServiceSitoPanel.src.interfaces;
 using ServiceSitoPanel.src.model;
 
@@ -32,9 +33,20 @@ namespace ServiceSitoPanel.src.controllers
 
         [Authorize]
         [HttpPost]
-        public async Task<IActionResult> CreateExpenses([FromBody] Expenses dto)
+        public async Task<IActionResult> CreateExpenses([FromBody] CreateExpensesDto dto)
         {
             var result = await _expenses.CreateExpenses(dto);
+
+            if (!result.Flag) ResponseHelper.HandleError(this, result);
+
+            return Ok(result);
+        }
+
+        [Authorize]
+        [HttpPatch]
+        public async Task<IActionResult> UpdateExpenses([FromBody] UpdateExpenseDto dto)
+        {
+            var result = await _expenses.UpdateExpenses(dto);
 
             if (!result.Flag) ResponseHelper.HandleError(this, result);
 
