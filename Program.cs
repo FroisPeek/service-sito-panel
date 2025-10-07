@@ -132,6 +132,7 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IGeneralService, GeneralService>();
 builder.Services.AddScoped<IOrdersService, OrdersServices>();
 builder.Services.AddScoped<IExpenses, ExpensesService>();
+builder.Services.AddScoped<ISolicitationsService, SolicitationsService>();
 builder.Services.AddScoped<JwtService>();
 builder.Services.AddScoped<HelperService>();
 builder.Services.AddScoped<UserMapper>();

@@ -23,6 +23,7 @@ namespace ServiceSitoPanel.src.context
         public DbSet<Orders> orders { get; set; }
         public DbSet<Client> client { get; set; }
         public DbSet<Expenses> expenses { get; set; }
+        public DbSet<Solicitations> solicitations { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
