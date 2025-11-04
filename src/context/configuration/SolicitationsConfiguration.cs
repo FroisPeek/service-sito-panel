@@ -8,8 +8,13 @@ namespace ServiceSitoPanel.src.context.Configurations
     {
         public void Configure(EntityTypeBuilder<Solicitations> entity)
         {
+            entity.Property(e => e.orders)
+                  .HasColumnType("integer[]");
+
+            entity.Ignore(e => e.OrderJoin);
+
             entity.Property(e => e.date_solicitation)
-                .HasColumnType("timestamp with time zone");
+                  .HasColumnType("timestamp with time zone");
         }
     }
 }

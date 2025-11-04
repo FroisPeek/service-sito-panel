@@ -5,8 +5,10 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ServiceSitoPanel.src.context;
+using ServiceSitoPanel.src.dtos.orders;
 using ServiceSitoPanel.src.dtos.solicitations;
 using ServiceSitoPanel.src.interfaces;
+using ServiceSitoPanel.src.mappers;
 using ServiceSitoPanel.src.model;
 using static ServiceSitoPanel.src.responses.ResponseFactory;
 
@@ -15,9 +17,11 @@ namespace ServiceSitoPanel.src.services
     public class SolicitationsService : ISolicitationsService
     {
         private readonly ApplicationDbContext _context;
-        public SolicitationsService(ApplicationDbContext context)
+        private readonly IOrdersService _repoOrder;
+        public SolicitationsService(ApplicationDbContext context, IOrdersService repoOrder)
         {
             _context = context;
+            _repoOrder = repoOrder;
         }
 
         public async Task<IResponses> GetAllSolicitations()
@@ -27,7 +31,24 @@ namespace ServiceSitoPanel.src.services
             if (solicitations.Count == 0)
                 return new ErrorResponse(false, 404, "Nenhuma solicitação encontrada");
 
-            return new SuccessResponse(true, 200, "Solicitações retornadas com sucesso");
+            return new SuccessResponse<List<Solicitations>>(true, 200, "Solicitações retornadas com sucesso", solicitations);
+        }
+
+        public async Task<IResponses> GetSolicitationsWithOrders()
+        {
+            var solicitations = await _context.solicitations.ToListAsync();
+
+            if (solicitations.Count == 0)
+                return new ErrorResponse(false, 404, "Nenhuma solicitação encontrada");
+
+            foreach (var s in solicitations)
+            {
+                s.OrderJoin = await _context.orders
+                    .Where(o => s.orders.Contains(o.id))
+                    .ToListAsync();
+            }
+
+            return new SuccessResponse<List<Solicitations>>(true, 200, "Solicitações retornadas com sucesso", solicitations);
         }
 
         public async Task<IResponses> RegistreInSolicitation([FromBody] RegistreInSolicitationDto dto)
@@ -85,6 +106,29 @@ namespace ServiceSitoPanel.src.services
             await _context.SaveChangesAsync();
 
             return new SuccessResponse<Solicitations>(true, 201, "Solicitação registrada com sucesso.", solicitation);
+        }
+
+        public async Task<IResponses> SaveOrderAndSolicitation([FromBody] CreateOrderDto[] dto, int? solicitation)
+        {
+            if (dto == null)
+                return new ErrorResponse(false, 400, "Nenhum pedido informado.");
+
+            var orderResponse = await _repoOrder.CreateOrder(dto);
+
+            if (orderResponse is not SuccessResponse<List<Orders>> successResponse)
+                return orderResponse;
+
+            var createdOrders = successResponse.Data;
+
+            var solicitationDto = new RegistreInSolicitationDto
+            {
+                orders = createdOrders.Select(o => o.id).ToArray(),
+                existingSolicitation = solicitation ?? null
+            };
+
+            var solicitationResponse = await RegistreInSolicitation(solicitationDto);
+
+            return solicitationResponse;
         }
 
     }

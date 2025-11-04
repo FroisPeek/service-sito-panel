@@ -68,7 +68,6 @@ namespace ServiceSitoPanel.src.services
             if (order == null)
                 return new ErrorResponse(false, 500, ErrorMessages.MissingOrderFields);
 
-
             List<Orders> ordersArray = new List<Orders>();
             foreach (var value in order)
             {
@@ -77,14 +76,15 @@ namespace ServiceSitoPanel.src.services
                 await _context.SaveChangesAsync();
 
                 var mappedOrder = value.ToCreateOrder(_context.CurrentTenantId, mappedClient.id);
-                ordersArray.Add(mappedOrder);
                 await _context.orders.AddAsync(mappedOrder);
+                ordersArray.Add(mappedOrder);
             }
 
             await _context.SaveChangesAsync();
 
             return new SuccessResponse<List<Orders>>(true, 201, SuccessMessages.OrderCreated, ordersArray);
         }
+
 
         public async Task<IResponses> UpdateOrderStatus([FromBody] int[] orders, [FromQuery] int value)
         {
