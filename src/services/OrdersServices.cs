@@ -63,19 +63,37 @@ namespace ServiceSitoPanel.src.services
             return new SuccessResponse<IEnumerable<ReadOrdersDto>>(true, 200, SuccessMessages.OrdersRetrieved, mappedOrders);
         }
 
-        public async Task<IResponses> CreateOrder([FromBody] CreateOrderDto[] order)
+        public async Task<IResponses> CreateOrder([FromBody] CreateOrderDto[] orders)
         {
-            if (order == null)
+            if (orders == null || orders.Length == 0)
                 return new ErrorResponse(false, 500, ErrorMessages.MissingOrderFields);
 
-            List<Orders> ordersArray = new List<Orders>();
-            foreach (var value in order)
-            {
-                var mappedClient = value.ToCreateClient(_context.CurrentTenantId);
-                await _context.client.AddAsync(mappedClient);
-                await _context.SaveChangesAsync();
+            var clients = await _context.client.ToListAsync();
 
-                var mappedOrder = value.ToCreateOrder(_context.CurrentTenantId, mappedClient.id);
+            List<Orders> ordersArray = new List<Orders>();
+
+            foreach (var orderDto in orders)
+            {
+                var existingClient = clients
+                    .FirstOrDefault(c => c.name.Trim().ToUpper() == orderDto.client.Trim().ToUpper());
+
+                int clientId;
+
+                if (existingClient != null)
+                {
+                    clientId = existingClient.id;
+                }
+                else
+                {
+                    var mappedClient = orderDto.ToCreateClient(_context.CurrentTenantId);
+                    await _context.client.AddAsync(mappedClient);
+                    await _context.SaveChangesAsync();
+                    clientId = mappedClient.id;
+
+                    clients.Add(mappedClient);
+                }
+
+                var mappedOrder = orderDto.ToCreateOrder(_context.CurrentTenantId, clientId);
                 await _context.orders.AddAsync(mappedOrder);
                 ordersArray.Add(mappedOrder);
             }
@@ -84,6 +102,7 @@ namespace ServiceSitoPanel.src.services
 
             return new SuccessResponse<List<Orders>>(true, 201, SuccessMessages.OrderCreated, ordersArray);
         }
+
 
 
         public async Task<IResponses> UpdateOrderStatus([FromBody] int[] orders, [FromQuery] int value)

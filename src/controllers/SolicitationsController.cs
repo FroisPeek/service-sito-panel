@@ -35,9 +35,9 @@ namespace ServiceSitoPanel.src.controllers
 
         [Authorize]
         [HttpGet("solicitation-with-orders")]
-        public async Task<IActionResult> GetSolicitationsWithOrders()
+        public async Task<IActionResult> GetSolicitationsWithOrders(int pageNumber = 1, int pageSize = 10)
         {
-            var result = await _solicitations.GetSolicitationsWithOrders();
+            var result = await _solicitations.GetSolicitationsWithOrders(pageNumber, pageSize);
 
             if (!result.Flag) ResponseHelper.HandleError(this, result);
 

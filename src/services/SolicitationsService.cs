@@ -34,7 +34,7 @@ namespace ServiceSitoPanel.src.services
             return new SuccessResponse<List<Solicitations>>(true, 200, "Solicitações retornadas com sucesso", solicitations);
         }
 
-        public async Task<IResponses> GetSolicitationsWithOrders()
+        public async Task<IResponses> GetSolicitationsWithOrders(int pageNumber, int pageSize)
         {
             var solicitations = await _context.solicitations.ToListAsync();
 
@@ -48,7 +48,23 @@ namespace ServiceSitoPanel.src.services
                     .ToListAsync();
             }
 
-            return new SuccessResponse<List<Solicitations>>(true, 200, "Solicitações retornadas com sucesso", solicitations);
+            var totalCount = solicitations.Count;
+
+            var pagedSolicitations = solicitations
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+
+            return new SuccessResponseWithPagination<Solicitations>(
+                true,
+                200,
+                "Solicitações retornadas com sucesso",
+                totalCount,
+                pageNumber,
+                pageSize,
+                (int)Math.Ceiling((double)totalCount / pageSize),
+                pagedSolicitations
+            );
         }
 
         public async Task<IResponses> RegistreInSolicitation([FromBody] RegistreInSolicitationDto dto)

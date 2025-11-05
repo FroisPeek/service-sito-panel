@@ -12,7 +12,7 @@ namespace ServiceSitoPanel.src.interfaces
     public interface ISolicitationsService
     {
         Task<IResponses> GetAllSolicitations();
-        Task<IResponses> GetSolicitationsWithOrders();
+        Task<IResponses> GetSolicitationsWithOrders(int pageNumber, int pageSize);
         Task<IResponses> RegistreInSolicitation([FromBody] RegistreInSolicitationDto dto);
         Task<IResponses> SaveOrderAndSolicitation([FromBody] CreateOrderDto[] dto, int? solicitation);
     }
