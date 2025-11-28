@@ -36,7 +36,9 @@ namespace ServiceSitoPanel.src.services
 
         public async Task<IResponses> GetSolicitationsWithOrders(int pageNumber, int pageSize)
         {
-            var solicitations = await _context.solicitations.ToListAsync();
+            var solicitations = await _context.solicitations
+                .OrderByDescending(s => s.date_solicitation)
+                .ToListAsync();
 
             if (solicitations.Count == 0)
                 return new ErrorResponse(false, 404, "Nenhuma solicitação encontrada");
@@ -45,6 +47,7 @@ namespace ServiceSitoPanel.src.services
             {
                 s.OrderJoin = await _context.orders
                     .Where(o => s.orders.Contains(o.id))
+                    .OrderByDescending(o => o.date_creation_order)
                     .ToListAsync();
             }
 
