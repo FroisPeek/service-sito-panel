@@ -47,7 +47,7 @@ namespace ServiceSitoPanel.src.controllers
         [HttpPost("logout")]
         public IActionResult Logout()
         {
-            Response.Cookies.Delete("accessToken");
+            _userRepository.DeleteTokenCookie(HttpContext);
             return Ok(new { message = "disconnect" });
         }
 

@@ -64,7 +64,13 @@ namespace ServiceSitoPanel.src.mappers
 
         public static void UpdateOrderStatusByValue(this Orders order, int value)
         {
-            order.status = value > 5 ? order.status : HandleFunctions.SelectStatus(value);
+            // Atualiza status para valores válidos (1-5, 9-10)
+            // Valores 6-8 são especiais (MoreThenOne, ToCheck, Checked) e não alteram o status principal
+            if (value >= 1 && value <= 5 || value == 9 || value == 10)
+            {
+                order.status = HandleFunctions.SelectStatus(value);
+            }
+            
             var now = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, HandleFunctions.GetTimeZone());
 
             switch (value)
@@ -95,8 +101,19 @@ namespace ServiceSitoPanel.src.mappers
                     order.date_conference = now;
                     break;
 
+                case 9:
+                case 10:
+                    // Novos status de pagamento não alteram datas ou outros campos
+                    // O status é atualizado automaticamente pelo UpdatePricePaid
+                    break;
+
                 default:
-                    throw new ArgumentException(ErrorMessages.InternalServerError, nameof(value));
+                    // Valores 6-8 (MoreThenOne, ToCheck, Checked) não alteram o status principal
+                    if (value != 6 && value != 7 && value != 8)
+                    {
+                        throw new ArgumentException(ErrorMessages.InternalServerError, nameof(value));
+                    }
+                    break;
             }
         }
 

@@ -10,12 +10,12 @@ namespace ServiceSitoPanel.src.interfaces
 {
     public interface IOrdersService
     {
-        Task<IResponses> GetAllOrders();
-        Task<IResponses> GetOrdersByStatus(int status);
+        Task<IResponses> GetAllOrders(int pageNumber, int pageSize);
+        Task<IResponses> GetOrdersByStatus(int status, int pageNumber, int pageSize);
         Task<IResponses> CreateOrder([FromBody] CreateOrderDto[] order);
         Task<IResponses> UpdateOrderStatus([FromBody] int[] orders, [FromQuery] int value);
         Task<IResponses> NewClientInOrder([FromBody] NewClientInOrderDto values);
-        Task<IResponses> GetAllPendingPaidOrders();
+        Task<IResponses> GetAllPendingPaidOrders(int pageNumber, int pageSize);
         Task<IResponses> UpdatePricePaid([FromBody] UpdatePaidPriceDto[] dto);
     }
 }

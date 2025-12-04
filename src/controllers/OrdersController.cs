@@ -25,9 +25,9 @@ namespace ServiceSitoPanel.src.controllers
 
         [Authorize]
         [HttpGet]
-        public async Task<IActionResult> GetAllOrder()
+        public async Task<IActionResult> GetAllOrder(int pageNumber = 1, int pageSize = 10)
         {
-            var result = await _repo.GetAllOrders();
+            var result = await _repo.GetAllOrders(pageNumber, pageSize);
 
             if (!result.Flag) ResponseHelper.HandleError(this, result);
 
@@ -36,9 +36,9 @@ namespace ServiceSitoPanel.src.controllers
 
         [Authorize]
         [HttpGet("{status}")]
-        public async Task<IActionResult> GetOrderByStatus(int status)
+        public async Task<IActionResult> GetOrderByStatus(int status, int pageNumber = 1, int pageSize = 10)
         {
-            var result = await _repo.GetOrdersByStatus(status);
+            var result = await _repo.GetOrdersByStatus(status, pageNumber, pageSize);
 
             if (!result.Flag) ResponseHelper.HandleError(this, result);
 
@@ -80,9 +80,9 @@ namespace ServiceSitoPanel.src.controllers
 
         [Authorize]
         [HttpGet("pending")]
-        public async Task<IActionResult> PendingPaidOrders()
+        public async Task<IActionResult> PendingPaidOrders(int pageNumber = 1, int pageSize = 10)
         {
-            var result = await _repo.GetAllPendingPaidOrders();
+            var result = await _repo.GetAllPendingPaidOrders(pageNumber, pageSize);
 
             if (!result.Flag) ResponseHelper.HandleError(this, result);
 

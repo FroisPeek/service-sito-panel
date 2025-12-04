@@ -28,39 +28,68 @@ namespace ServiceSitoPanel.src.services
             _context = context;
         }
 
-        public async Task<IResponses> GetAllOrders()
+        public async Task<IResponses> GetAllOrders(int pageNumber, int pageSize)
         {
-            ICollection<Orders> orders = await _context.orders
+            var query = _context.orders
                 .Include(orders => orders.ClientJoin)
-                .OrderByDescending(o => o.id)
-                .ToListAsync();
+                .Where(o => o.ClientJoin != null);
 
-            if (orders.Count == 0)
+            var totalCount = await query.CountAsync();
+
+            if (totalCount == 0)
                 return new ErrorResponse(false, 500, ErrorMessages.NoOrdersFound);
 
-            var mappedOrders = orders
-                .Where(o => o.ClientJoin != null)
-                .Select(o => o.ToReadAllOrders());
+            var pagedOrders = await query
+                .OrderByDescending(o => o.id)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
 
-            return new SuccessResponse<IEnumerable<ReadOrdersDto>>(true, 200, SuccessMessages.OrdersRetrieved, mappedOrders);
+            var mappedOrders = pagedOrders.Select(o => o.ToReadAllOrders());
+
+            return new SuccessResponseWithPagination<ReadOrdersDto>(
+                true,
+                200,
+                SuccessMessages.OrdersRetrieved,
+                totalCount,
+                pageNumber,
+                pageSize,
+                (int)Math.Ceiling((double)totalCount / pageSize),
+                mappedOrders
+            );
         }
 
-        public async Task<IResponses> GetOrdersByStatus(int status)
+        public async Task<IResponses> GetOrdersByStatus(int status, int pageNumber, int pageSize)
         {
             var statues = HandleFunctions.SelectOneOrMoreStatus(status);
 
-            ICollection<Orders> orders = await _context.orders
+            var query = _context.orders
                 .Include(orders => orders.ClientJoin)
-                .Where(o => statues.Contains(o.status))
-                .OrderBy(o => o.status)
-                .ToListAsync();
+                .Where(o => statues.Contains(o.status));
+            
+            var totalCount = await query.CountAsync();
 
-            if (orders.Count == 0)
+            if (totalCount == 0)
                 return new ErrorResponse(false, 500, ErrorMessages.NoOrdersFound);
 
-            var mappedOrders = orders.Select(o => o.ToReadAllOrders());
+            var pagedOrders = await query
+                .OrderByDescending(o => o.id)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
 
-            return new SuccessResponse<IEnumerable<ReadOrdersDto>>(true, 200, SuccessMessages.OrdersRetrieved, mappedOrders);
+            var mappedOrders = pagedOrders.Select(o => o.ToReadAllOrders());
+
+            return new SuccessResponseWithPagination<ReadOrdersDto>(
+                true,
+                200,
+                SuccessMessages.OrdersRetrieved,
+                totalCount,
+                pageNumber,
+                pageSize,
+                (int)Math.Ceiling((double)totalCount / pageSize),
+                mappedOrders
+            );
         }
 
         public async Task<IResponses> CreateOrder([FromBody] CreateOrderDto[] orders)
@@ -148,17 +177,34 @@ namespace ServiceSitoPanel.src.services
             return new SuccessResponse<Orders>(true, 200, SuccessMessages.OrderCreated, orderToUpdate);
         }
 
-        public async Task<IResponses> GetAllPendingPaidOrders()
+        public async Task<IResponses> GetAllPendingPaidOrders(int pageNumber, int pageSize)
         {
-            var orders = await _context.orders
+            var query = _context.orders
                 .Include(o => o.ClientJoin)
-                .Where(o => o.price_paid != o.total_price)
-                .ToListAsync();
+                .Where(o => o.price_paid != o.total_price);
 
-            if (orders.Count == 0)
+            var totalCount = await query.CountAsync();
+
+            if (totalCount == 0)
                 return new ErrorResponse(false, 404, ErrorMessages.NoOrdersFound);
 
-            return new SuccessResponse<IEnumerable<ReadOrdersDto>>(true, 200, SuccessMessages.OrderCreated, orders.Select(o => o.ToReadAllOrders()));
+            var pagedOrders = await query
+                .OrderByDescending(o => o.date_creation_order)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return new SuccessResponseWithPagination<Orders>(
+                true,
+                200,
+                "Pedidos retornadas com sucesso",
+                totalCount,
+                pageNumber,
+                pageSize,
+                (int)Math.Ceiling((double)totalCount / pageSize),
+                pagedOrders
+            );
+
         }
 
         public async Task<IResponses> UpdatePricePaid([FromBody] UpdatePaidPriceDto[] dto)
@@ -169,13 +215,44 @@ namespace ServiceSitoPanel.src.services
                 .Where(o => orderIds.Contains(o.id))
                 .ToListAsync();
 
-            if (ordersToUpdate == null)
+            if (ordersToUpdate == null || ordersToUpdate.Count == 0)
                 return new ErrorResponse(false, 404, ErrorMessages.NoOrdersFound);
 
             foreach (var order in ordersToUpdate)
             {
                 var dtoItem = dto.First(d => d.order_id == order.id);
-                order.price_paid = (order.price_paid ?? 0) + dtoItem.paid_price;
+                var currentPaid = order.price_paid ?? 0;
+                var newPaid = currentPaid + dtoItem.paid_price;
+                order.price_paid = newPaid;
+
+                // Atualiza o status automaticamente baseado no valor pago
+                // Só atualiza se o pedido estiver em um status relacionado a contas a pagar
+                var currentStatus = order.status;
+                var isAccountsPayableStatus = currentStatus == StatusOrder.NewStatus[Status.ConfirmSale] ||
+                                             currentStatus == StatusOrder.NewStatus[Status.PaidPurchase] ||
+                                             currentStatus == StatusOrder.NewStatus[Status.PartialPayment] ||
+                                             currentStatus == StatusOrder.NewStatus[Status.FullyPaid];
+
+                if (isAccountsPayableStatus)
+                {
+                    var totalPrice = order.total_price ?? 0;
+
+                    if (newPaid <= 0)
+                    {
+                        // Se não foi pago nada, mantém como Compra Realizada
+                        order.status = StatusOrder.NewStatus[Status.ConfirmSale];
+                    }
+                    else if (newPaid >= totalPrice)
+                    {
+                        // Se foi totalmente pago, muda para Pagamento Quitado
+                        order.status = StatusOrder.NewStatus[Status.FullyPaid];
+                    }
+                    else
+                    {
+                        // Se foi pago parcialmente, muda para Pagamento Parcial
+                        order.status = StatusOrder.NewStatus[Status.PartialPayment];
+                    }
+                }
             }
 
             await _context.SaveChangesAsync();

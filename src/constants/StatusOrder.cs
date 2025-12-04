@@ -11,7 +11,9 @@ namespace ServiceSitoPanel.src.constants
         ConfirmSale,
         PaidPurchase,
         ToCheck,
-        Checked
+        Checked,
+        PartialPayment,
+        FullyPaid
     }
 
     public static class StatusOrder
@@ -24,7 +26,9 @@ namespace ServiceSitoPanel.src.constants
             {Status.ConfirmSale, "Compra Realizada" },
             {Status.PaidPurchase, "Compra Quitada"},
             {Status.ToCheck, "A Conferir"},
-            {Status.Checked, "Conferido"}
+            {Status.Checked, "Conferido"},
+            {Status.PartialPayment, "Pagamento Parcial"},
+            {Status.FullyPaid, "Pagamento Quitado"}
         };
     }
 }

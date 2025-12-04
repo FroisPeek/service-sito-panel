@@ -106,5 +106,21 @@ namespace ServiceSitoPanel.src.services
                 Domain = _configuration["Jwt:Domain"]
             });
         }
+
+        public void DeleteTokenCookie(HttpContext context)
+        {
+            var cookieOptions = new CookieOptions
+            {
+                HttpOnly = true,
+                IsEssential = true,
+                Secure = true,
+                SameSite = SameSiteMode.None,
+                Path = "/",
+                Expires = DateTime.Now.NowInBrasilia().AddDays(-1), // Data no passado para forçar exclusão
+                Domain = _configuration["Jwt:Domain"]
+            };
+
+            context.Response.Cookies.Delete("accessToken", cookieOptions);
+        }
     }
 }

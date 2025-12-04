@@ -36,27 +36,31 @@ namespace ServiceSitoPanel.src.services
 
         public async Task<IResponses> GetSolicitationsWithOrders(int pageNumber, int pageSize)
         {
-            var solicitations = await _context.solicitations
+            var query = _context.solicitations.AsQueryable();
+
+            var totalCount = await query.CountAsync();
+
+            var solicitations = await query
                 .OrderByDescending(s => s.date_solicitation)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
                 .ToListAsync();
 
             if (solicitations.Count == 0)
                 return new ErrorResponse(false, 404, "Nenhuma solicitação encontrada");
 
+            var orderIds = solicitations.SelectMany(s => s.orders).Distinct().ToArray();
+
+            var orders = await _context.orders
+                .Where(o => orderIds.Contains(o.id))
+                .ToListAsync();
+
             foreach (var s in solicitations)
             {
-                s.OrderJoin = await _context.orders
-                    .Where(o => s.orders.Contains(o.id))
-                    .OrderByDescending(o => o.date_creation_order)
-                    .ToListAsync();
+                s.OrderJoin = orders.Where(o => s.orders.Contains(o.id))
+                                    .OrderByDescending(o => o.date_creation_order)
+                                    .ToList();
             }
-
-            var totalCount = solicitations.Count;
-
-            var pagedSolicitations = solicitations
-                .Skip((pageNumber - 1) * pageSize)
-                .Take(pageSize)
-                .ToList();
 
             return new SuccessResponseWithPagination<Solicitations>(
                 true,
@@ -66,7 +70,7 @@ namespace ServiceSitoPanel.src.services
                 pageNumber,
                 pageSize,
                 (int)Math.Ceiling((double)totalCount / pageSize),
-                pagedSolicitations
+                solicitations
             );
         }
 

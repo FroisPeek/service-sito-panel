@@ -27,6 +27,12 @@ namespace ServiceSitoPanel.src.functions
                 case 5:
                     return StatusOrder.NewStatus[Status.PaidPurchase];
 
+                case 9:
+                    return StatusOrder.NewStatus[Status.PartialPayment];
+
+                case 10:
+                    return StatusOrder.NewStatus[Status.FullyPaid];
+
                 default:
                     return null;
             }
@@ -52,10 +58,20 @@ namespace ServiceSitoPanel.src.functions
                     return new List<string> { StatusOrder.NewStatus[Status.PaidPurchase] };
 
                 case 6:
+                    // MoreThenOne: Inclui Compra Realizada, Pagamento Parcial e Pagamento Quitado
+                    // Mantém compatibilidade retroativa incluindo Compra Quitada também
                     return new List<string> {
-                StatusOrder.NewStatus[Status.ConfirmSale],
-                StatusOrder.NewStatus[Status.PaidPurchase]
-                };
+                        StatusOrder.NewStatus[Status.ConfirmSale],
+                        StatusOrder.NewStatus[Status.PaidPurchase],
+                        StatusOrder.NewStatus[Status.PartialPayment],
+                        StatusOrder.NewStatus[Status.FullyPaid]
+                    };
+
+                case 9:
+                    return new List<string> { StatusOrder.NewStatus[Status.PartialPayment] };
+
+                case 10:
+                    return new List<string> { StatusOrder.NewStatus[Status.FullyPaid] };
 
                 default:
                     return null;

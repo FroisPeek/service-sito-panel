@@ -12,5 +12,6 @@ namespace ServiceSitoPanel.src.interfaces
         Task<IResponses> PostAsync(CreateUserDto user);
         Task<IResponses> Authenticate(LoginUserDto user, HttpContext context);
         IResponses ValidateToken(string token);
+        void DeleteTokenCookie(HttpContext context);
     }
 }
