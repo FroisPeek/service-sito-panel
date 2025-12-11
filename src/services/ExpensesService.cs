@@ -23,14 +23,31 @@ namespace ServiceSitoPanel.src.services
             _context = context;
         }
 
-        public async Task<IResponses> GetAllExpenses()
+        public async Task<IResponses> GetAllExpenses(int pageNumber, int pageSize)
         {
-            var allExpenses = await _context.expenses.ToListAsync();
+            var query = _context.expenses
+                .OrderByDescending(e => e.expense_date);
 
-            if (allExpenses.Count == 0)
+            var totalCount = await query.CountAsync();
+
+            if (totalCount == 0)
                 return new ErrorResponse(false, 404, "Nenhuma despesa encontrada");
 
-            return new SuccessResponse<IEnumerable<Expenses>>(true, 200, SuccessMessages.ProfilesRetrieved, allExpenses);
+            var pagedExpenses = await query
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return new SuccessResponseWithPagination<Expenses>(
+                true,
+                200,
+                SuccessMessages.ProfilesRetrieved,
+                totalCount,
+                pageNumber,
+                pageSize,
+                (int)Math.Ceiling((double)totalCount / pageSize),
+                pagedExpenses
+            );
         }
 
         public async Task<IResponses> CreateExpenses([FromBody] CreateExpensesDto dto)

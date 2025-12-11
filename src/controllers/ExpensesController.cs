@@ -22,9 +22,9 @@ namespace ServiceSitoPanel.src.controllers
 
         [Authorize]
         [HttpGet]
-        public async Task<IActionResult> GetExpenses()
+        public async Task<IActionResult> GetExpenses(int pageNumber = 1, int pageSize = 10)
         {
-            var result = await _expenses.GetAllExpenses();
+            var result = await _expenses.GetAllExpenses(pageNumber, pageSize);
 
             if (!result.Flag) ResponseHelper.HandleError(this, result);
 

@@ -136,6 +136,7 @@ builder.Services.AddScoped<ISolicitationsService, SolicitationsService>();
 builder.Services.AddScoped<JwtService>();
 builder.Services.AddScoped<HelperService>();
 builder.Services.AddScoped<UserMapper>();
+builder.Services.AddScoped<ISettingsService, SettingsService>();
 
 var app = builder.Build();
 

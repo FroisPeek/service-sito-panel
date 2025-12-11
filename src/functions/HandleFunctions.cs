@@ -33,6 +33,9 @@ namespace ServiceSitoPanel.src.functions
                 case 10:
                     return StatusOrder.NewStatus[Status.FullyPaid];
 
+                case 11:
+                    return StatusOrder.NewStatus[Status.DeliveredToClient];
+
                 default:
                     return null;
             }

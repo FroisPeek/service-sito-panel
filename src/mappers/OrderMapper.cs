@@ -66,7 +66,7 @@ namespace ServiceSitoPanel.src.mappers
         {
             // Atualiza status para valores válidos (1-5, 9-10)
             // Valores 6-8 são especiais (MoreThenOne, ToCheck, Checked) e não alteram o status principal
-            if (value >= 1 && value <= 5 || value == 9 || value == 10)
+            if (value >= 1 && value <= 5 || value == 9 || value == 10 || value == 11)
             {
                 order.status = HandleFunctions.SelectStatus(value);
             }
@@ -99,6 +99,15 @@ namespace ServiceSitoPanel.src.mappers
                 case 8:
                     order.status_conference = StatusOrder.NewStatus[Status.Checked];
                     order.date_conference = now;
+                    break;
+
+                case 11:
+                    // Entregue ao Cliente
+                    // Requer que ja esteja conferido? A regra de negocio diz que sim ("após conferido")
+                    // Podemos forçar o status conference pra garantir ou validar antes.
+                    // Aqui vamos apenas setar a data e o status visual se necessario.
+                    order.date_delivery = now;
+                    // O status principal ja foi setado pelo SelectStatus(11) se incluirmos no range la em cima
                     break;
 
                 case 9:
