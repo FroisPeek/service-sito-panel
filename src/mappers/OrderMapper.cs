@@ -71,7 +71,9 @@ namespace ServiceSitoPanel.src.mappers
                 order.status = HandleFunctions.SelectStatus(value);
             }
             
-            var now = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, HandleFunctions.GetTimeZone());
+            var localDate = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, HandleFunctions.GetTimeZone());
+            var now = localDate; // Keep Kind=Unspecified for timestamp columns
+            var nowUtcKind = DateTime.SpecifyKind(localDate, DateTimeKind.Utc); // Kind=Utc for timestamptz columns
 
             switch (value)
             {
@@ -106,7 +108,7 @@ namespace ServiceSitoPanel.src.mappers
                     // Requer que ja esteja conferido? A regra de negocio diz que sim ("após conferido")
                     // Podemos forçar o status conference pra garantir ou validar antes.
                     // Aqui vamos apenas setar a data e o status visual se necessario.
-                    order.date_delivery = now;
+                    order.date_delivery = nowUtcKind;
                     // O status principal ja foi setado pelo SelectStatus(11) se incluirmos no range la em cima
                     break;
 
