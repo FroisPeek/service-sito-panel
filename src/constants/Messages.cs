@@ -19,6 +19,9 @@ namespace ServiceSitoPanel.src.constants
 
         // Clients
         public const string NoClientsFound = "Nenhum cliente cadastrado.";
+
+        // Purchases
+        public const string NoPurchasesFound = "Nenhuma compra encontrada.";
     }
 
     public static class SuccessMessages
@@ -33,5 +36,8 @@ namespace ServiceSitoPanel.src.constants
 
         // Clients
         public const string ClientsRetrieved = "Clientes retornados com sucesso.";
+
+        // Purchases
+        public const string PurchasesRetrieved = "Compras retornadas com sucesso.";
     }
 }

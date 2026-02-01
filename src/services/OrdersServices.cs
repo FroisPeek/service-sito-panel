@@ -67,7 +67,7 @@ namespace ServiceSitoPanel.src.services
                 .Include(orders => orders.ClientJoin)
                 .Include(orders => orders.SupplierJoin)
                 .Where(o => statues.Contains(o.status));
-            
+
             var totalCount = await query.CountAsync();
 
             if (totalCount == 0)

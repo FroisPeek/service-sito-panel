@@ -134,6 +134,7 @@ builder.Services.AddScoped<IOrdersService, OrdersServices>();
 builder.Services.AddScoped<IExpenses, ExpensesService>();
 builder.Services.AddScoped<ISolicitationsService, SolicitationsService>();
 builder.Services.AddScoped<ISupplierService, SupplierService>();
+builder.Services.AddScoped<IPurchasesService, PurchasesService>();
 builder.Services.AddScoped<JwtService>();
 builder.Services.AddScoped<HelperService>();
 builder.Services.AddScoped<UserMapper>();

@@ -78,7 +78,7 @@ namespace ServiceSitoPanel.src.mappers
             {
                 order.status = HandleFunctions.SelectStatus(value);
             }
-            
+
             var localDate = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, HandleFunctions.GetTimeZone());
             var now = localDate; // Keep Kind=Unspecified for timestamp columns
             var nowUtcKind = DateTime.SpecifyKind(localDate, DateTimeKind.Utc); // Kind=Utc for timestamptz columns
