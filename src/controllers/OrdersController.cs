@@ -57,6 +57,17 @@ namespace ServiceSitoPanel.src.controllers
         }
 
         [Authorize]
+        [HttpPatch("realizar-compra")]
+        public async Task<IActionResult> RealizarCompra([FromBody] int[] orderIds)
+        {
+            var result = await _repo.RealizarCompra(orderIds ?? Array.Empty<int>());
+
+            if (!result.Flag) ResponseHelper.HandleError(this, result);
+
+            return Ok(result);
+        }
+
+        [Authorize]
         [HttpPut]
         public async Task<IActionResult> UpdateStatusOrder([FromBody] int[] orders, [FromQuery] int value)
         {
@@ -97,10 +108,11 @@ namespace ServiceSitoPanel.src.controllers
             [FromQuery] int[]? statuses = null,
             int? clientId = null,
             int? supplierId = null,
+            string? statusConference = null,
             int pageNumber = 1,
             int pageSize = 10)
         {
-            var result = await _repo.GetOrdersWithFilters(dateStart, dateEnd, statuses, clientId, supplierId, pageNumber, pageSize);
+            var result = await _repo.GetOrdersWithFilters(dateStart, dateEnd, statuses, clientId, supplierId, statusConference, pageNumber, pageSize);
 
             if (!result.Flag) ResponseHelper.HandleError(this, result);
 

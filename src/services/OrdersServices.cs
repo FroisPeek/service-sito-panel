@@ -93,45 +93,43 @@ namespace ServiceSitoPanel.src.services
             );
         }
 
-        public async Task<IResponses> GetOrdersWithFilters(DateTime? dateStart, DateTime? dateEnd, int[]? statuses, int? clientId, int? supplierId, int pageNumber, int pageSize)
+        public async Task<IResponses> GetOrdersWithFilters(DateTime? dateStart, DateTime? dateEnd, int[]? statuses, int? clientId, int? supplierId, string? statusConference, int pageNumber, int pageSize)
         {
             var query = _context.orders
                 .Include(o => o.ClientJoin)
                 .Include(o => o.SupplierJoin)
                 .AsQueryable();
 
-            // Filter by date range
             if (dateStart.HasValue)
                 query = query.Where(o => o.date_creation_order >= dateStart.Value);
 
             if (dateEnd.HasValue)
                 query = query.Where(o => o.date_creation_order <= dateEnd.Value);
 
-            // Filter by statuses
             if (statuses != null && statuses.Length > 0)
             {
                 var statusStrings = statuses.SelectMany(s => HandleFunctions.SelectOneOrMoreStatus(s)).Distinct().ToList();
                 query = query.Where(o => statusStrings.Contains(o.status));
             }
 
-            // Filter by client
+            if (!string.IsNullOrWhiteSpace(statusConference))
+                query = query.Where(o => o.status_conference == statusConference);
+
             if (clientId.HasValue)
                 query = query.Where(o => o.client == clientId.Value);
 
-            // Filter by supplier
             if (supplierId.HasValue)
                 query = query.Where(o => o.supplier == supplierId.Value);
 
             var totalCount = await query.CountAsync();
 
-            if (totalCount == 0)
-                return new ErrorResponse(false, 404, ErrorMessages.NoOrdersFound);
-
-            var pagedOrders = await query
-                .OrderByDescending(o => o.date_creation_order)
-                .Skip((pageNumber - 1) * pageSize)
-                .Take(pageSize)
-                .ToListAsync();
+            var pagedOrders = totalCount == 0
+                ? new List<Orders>()
+                : await query
+                    .OrderByDescending(o => o.date_creation_order)
+                    .Skip((pageNumber - 1) * pageSize)
+                    .Take(pageSize)
+                    .ToListAsync();
 
             var mappedOrders = pagedOrders.Select(o => o.ToReadAllOrders());
 
@@ -142,9 +140,33 @@ namespace ServiceSitoPanel.src.services
                 totalCount,
                 pageNumber,
                 pageSize,
-                (int)Math.Ceiling((double)totalCount / pageSize),
+                totalCount == 0 ? 0 : (int)Math.Ceiling((double)totalCount / pageSize),
                 mappedOrders
             );
+        }
+
+        public async Task<IResponses> RealizarCompra(int[] orderIds)
+        {
+            if (orderIds == null || orderIds.Length == 0)
+                return new ErrorResponse(false, 400, ErrorMessages.MissingOrderCodes);
+
+            var ordersToUpdate = await _context.orders
+                .Where(o => orderIds.Contains(o.id) && o.status == StatusOrder.NewStatus[Status.PendingPurchase])
+                .ToListAsync();
+
+            if (ordersToUpdate.Count == 0)
+                return new ErrorResponse(false, 404, ErrorMessages.NoOrdersFound);
+
+            var now = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, HandleFunctions.GetTimeZone());
+            foreach (var order in ordersToUpdate)
+            {
+                order.status = StatusOrder.NewStatus[Status.ConfirmSale];
+                order.status_conference = StatusOrder.NewStatus[Status.ToCheck];
+                order.date_order = now;
+            }
+
+            await _context.SaveChangesAsync();
+            return new SuccessResponse(true, 200, SuccessMessages.OrdersUpdated);
         }
 
         public async Task<IResponses> CreateOrder([FromBody] CreateOrderDto[] orders)
